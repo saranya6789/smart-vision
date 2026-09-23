@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific - Sensitive files
+firebase_key.json
+firebase/firebase_key.json
+*.env
+config.env
+.env
+.env.local
+
+# Cache and temporary files
+*.cache
+.cache/
+snapshots/
+*.jpg
+*.jpeg
+*.png
+*.tmp
+*.bak
+
+# Local storage (can be large)
+alerts_local/
+weapons_local/
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Media
+videos/
+frames/
+
+# OS specific
+Thumbs.db
+.DS_Store
+# Smart Vision personal data
+Known_Faces/
+Unknown_*.jpg
+Person_*.jpg
