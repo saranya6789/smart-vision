@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartVision Login</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+        body{
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:linear-gradient(135deg,#0f172a,#1e3a8a,#0ea5e9);
+            padding:20px;
+        }
+        .login-box{
+            width:100%;
+            max-width:420px;
+            background:rgba(255,255,255,0.12);
+            backdrop-filter:blur(10px);
+            border-radius:20px;
+            padding:30px;
+            color:#fff;
+            box-shadow:0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1{text-align:center;margin-bottom:10px}
+        .sub{text-align:center;margin-bottom:25px;color:#dbeafe}
+        input,select,button{
+            width:100%;
+            padding:14px;
+            margin-bottom:15px;
+            border:none;
+            border-radius:12px;
+            font-size:16px;
+        }
+        input,select{background:#fff;color:#111827}
+        button{
+            background:#38bdf8;
+            color:#082f49;
+            font-weight:bold;
+            cursor:pointer;
+        }
+        button:hover{background:#7dd3fc}
+        .error{
+            background:#7f1d1d;
+            padding:10px;
+            border-radius:10px;
+            margin-bottom:15px;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <form class="login-box" method="POST">
+        <h1>SmartVision</h1>
+        <div class="sub">AI Surveillance Login</div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        <select name="mode" required>
+            <option value="normal">Normal Mode - Weapon Detection Only</option>
+            <option value="smart">Smart Mode - Weapon + Face + Behavior</option>
+        </select>
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,10 @@
+Flask==2.3.3
+opencv-python==4.8.0.74
+deepface==0.0.75
+ultralytics==8.0.202
+firebase-admin==6.2.0
+cloudinary==1.35.0
+numpy==1.24.3
+scipy==1.11.2
+scikit-learn==1.3.0
+matplotlib==3.7.2

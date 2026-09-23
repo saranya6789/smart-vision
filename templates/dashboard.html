@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartVision Surveillance</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: white;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            background: #111827;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            color: #38bdf8;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            text-decoration: none;
+            background: #38bdf8;
+            color: #082f49;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .mode-box {
+            background: #1e293b;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .video-card {
+            background: #111827;
+            border-radius: 18px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .video-card img {
+            width: 100%;
+            border-radius: 14px;
+            max-height: 520px;
+            object-fit: cover;
+            background: black;
+        }
+
+        .section-title {
+            margin: 25px 0 15px;
+            font-size: 24px;
+            color: #7dd3fc;
+        }
+
+        .alerts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #000;
+        }
+
+        .empty {
+            color: #cbd5e1;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .weapon {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .face {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        .behavior {
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        .time {
+            color: #cbd5e1;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Real-Time Surveillance</h1>
+        <div class="nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="mode-box">
+            Active Mode: <strong>{{ mode|capitalize }}</strong>
+        </div>
+
+        <div class="video-card">
+            <img src="{{ url_for('video_feed') }}" alt="Live Surveillance Feed">
+        </div>
+
+        <div class="section-title">Recent Alerts</div>
+        <div class="alerts" id="alertsBox">
+            <div class="empty">Loading alerts...</div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRE35cT_fB-HZ5Qc8LRMSkAoAr5AjNQF8",
+            authDomain: "smartvision-b3697.firebaseapp.com",
+            databaseURL: "https://smartvision-b3697-default-rtdb.firebaseio.com",
+            projectId: "smartvision-b3697",
+            storageBucket: "smartvision-b3697.firebasestorage.app",
+            messagingSenderId: "426881653705",
+            appId: "1:426881653705:web:021bb333a0c53afb7d6618",
+            measurementId: "G-EK4NRGG82X"
+        };
+
+        console.log("📱 Initializing Firebase...");
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+            console.log("✓ Firebase initialized");
+        }
+
+        const database = firebase.database();
+        const alertsBox = document.getElementById("alertsBox");
+        
+        console.log("✓ Database reference created");
+        
+        // Test Firebase connection
+        console.log("\n🧪 Testing Firebase connection...");
+        database.ref(".info/connected").on("value", (snapshot) => {
+            if (snapshot.val() === true) {
+                console.log("✅ CONNECTED to Firebase Realtime Database");
+            } else {
+                console.log("❌ DISCONNECTED from Firebase Realtime Database");
+            }
+        });
+
+        function buildCombinedList(alertData, weaponData) {
+            let combined = [];
+
+            if (alertData) {
+                Object.keys(alertData).forEach(key => {
+                    const item = alertData[key] || {};
+                    combined.push({
+                        type: item.behavior === "Unknown Face" ? "face" : "behavior",
+                        title: item.name || "Unknown",
+                        subtitle: item.behavior || "Alert",
+                        timestamp: item.timestamp || "",
+                        image: item.image || ""
+                    });
+                });
+            }
+
+            if (weaponData) {
+                Object.keys(weaponData).forEach(key => {
+                    const item = weaponData[key] || {};
+                    combined.push({
+                        type: "weapon",
+                        title: item.weapon || "Weapon",
+                        subtitle: "Weapon Detected",
+                        timestamp: item.timestamp || "",
+                        image: item.image || ""
+                    });
+                });
+            }
+
+            combined.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+            return combined.slice(0, 8);
+        }
+
+        function renderAlerts(combined) {
+            console.log("🎨 Rendering alerts. Count:", combined.length);
+            alertsBox.innerHTML = "";
+
+            if (!combined.length) {
+                alertsBox.innerHTML = '<div class="empty">No alerts yet. Waiting for detections...</div>';
+                console.log("⚠️  No alerts to display");
+                return;
+            }
+
+            combined.forEach((item, index) => {
+                console.log(`  Alert ${index + 1}:`, item.title, "| Timestamp:", item.timestamp);
+                const card = document.createElement("div");
+                card.className = "card";
+
+                let badgeClass = "behavior";
+                let badgeText = "Behavior Alert";
+
+                if (item.type === "weapon") {
+                    badgeClass = "weapon";
+                    badgeText = "🔫 Weapon Alert";
+                } else if (item.type === "face") {
+                    badgeClass = "face";
+                    badgeText = "👤 Face Alert";
+                }
+
+                const imageTag = item.image
+                    ? `<img src="${item.image}" alt="Alert Image" onerror="this.innerHTML='<div style=\\'color:red\\'>Image failed to load</div>'">`
+                    : `<div style="height:220px;background:#0b1220;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#94a3b8;">No Image</div>`;
+
+                card.innerHTML = `
+                    <div class="badge ${badgeClass}">${badgeText}</div>
+                    ${imageTag}
+                    <h3>${item.title}</h3>
+                    <p>${item.subtitle}</p>
+                    <div class="time">📅 ${item.timestamp}</div>
+                `;
+
+                alertsBox.appendChild(card);
+            });
+            console.log("✓ Alerts rendered successfully");
+        }
+
+        function listenForAlerts() {
+            console.log("\n════════════════════════════════════════");
+            console.log("🔍 Initializing Firebase Real-Time Listeners");
+            console.log("════════════════════════════════════════\n");
+            
+            const alertsRef = database.ref("alerts");
+            const weaponsRef = database.ref("weapon_alerts");
+
+            let currentAlerts = {};
+            let currentWeapons = {};
+
+            console.log("📌 Setting up listener for: /alerts");
+            alertsRef.on("value", 
+                (snapshot) => {
+                    console.log("\n🔔 [ALERTS] Snapshot received");
+                    console.log("  Data:", snapshot.val());
+                    currentAlerts = snapshot.val() || {};
+                    console.log("  Processed alerts:", currentAlerts);
+                    renderAlerts(buildCombinedList(currentAlerts, currentWeapons));
+                }, 
+                (error) => {
+                    console.error("❌ [ALERTS] Error:", error.code, error.message);
+                }
+            );
+
+            console.log("📌 Setting up listener for: /weapon_alerts");
+            weaponsRef.on("value", 
+                (snapshot) => {
+                    console.log("\n🔫 [WEAPONS] Snapshot received");
+                    console.log("  Data:", snapshot.val());
+                    currentWeapons = snapshot.val() || {};
+                    console.log("  Processed weapons:", currentWeapons);
+                    renderAlerts(buildCombinedList(currentAlerts, currentWeapons));
+                }, 
+                (error) => {
+                    console.error("❌ [WEAPONS] Error:", error.code, error.message);
+                }
+            );
+
+            console.log("\n✅ Firebase Real-Time Listeners initialized successfully");
+            console.log("⏳ Waiting for data from Firebase...\n");
+        }
+
+        // Start when page fully loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', listenForAlerts);
+            console.log("⏳ Page loading, will initialize when ready");
+        } else {
+            listenForAlerts();
+            console.log("✓ Page already loaded, initialized immediately");
+        }
+    </script>
+</body>
+</html>
